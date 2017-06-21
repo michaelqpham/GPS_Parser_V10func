@@ -60,8 +60,10 @@
 %
 %[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]
 '''
+import os.path # Import os.path to search file paths
+
 def GPS_Parser_V10func(filename, datadir, GPSFigs, PAR3501):
-    return
+    return [MSGCOUNT, REPCOUNT, GPSTimSec]
 '''
 %=====================================================================================
 % U S E R    P A R A M E T E R S
@@ -82,4 +84,29 @@ REPCOUNT = struct('TotalBytes',[],'UnassignedBytes',[],'FailedChkSum',[],...
 % INITIAL USER INTERACTIONS - CHOOSE FILE AND OPT FOR FIGURE
 %-------------------------------------------------------------------------------------
 '''
-hgps = waitbar(0,['Processing GPS data...']);
+# hgps = waitbar(0,['Processing GPS data...'])
+
+'''
+%-------------------------------------------------------------------------------------
+% OPEN THE GPS FILE
+%-------------------------------------------------------------------------------------
+'''
+gpsname = filename
+gfid = open(gpsname, 'r')
+
+'''
+%-------------------------------------------------------------------------------------
+% DETERMINE IF MSG3501 ALREADY EXISTS AND IF NOT, CREATE IT.
+%-------------------------------------------------------------------------------------
+'''
+msg3501Filename = gpsname.replace('.bin','') + '-Msg3501.csv')
+parsed3501 = os.path.exists(msg3501Filename)
+
+if (PAR3501 == true) && (parsed3501 == 0):
+    fid3501=fopen(fullfile(datadir,msg3501Filename),'w+');
+    fprintf(fid3501,'%s \n', '%=============================================================================');
+    fprintf(fid3501,'%s \n',['%NGDCS Check ' Vnum ': Message 3501 Navigation Solution of ' gpsname]);
+    fprintf(fid3501,'%s \n', '%* If present "Date" and "Abs Time" are derived and not original Msg3501 data');
+    fprintf(fid3501,'%s \n', '%=============================================================================');
+    fprintf(fid3501,'%s \n', '%Msg3501#, StartByte, Flag, Time, Lat, Lon, Alt, VelN, VelE, VelUp, Pitch, Roll, HeadTrue, DataCheckSum');
+end
