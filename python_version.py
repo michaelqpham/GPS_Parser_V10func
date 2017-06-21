@@ -102,8 +102,8 @@ gfid = open(gpsname, 'r')
 msg3501Filename = gpsname.replace('.bin','') + '-Msg3501.csv')
 parsed3501 = os.path.exists(msg3501Filename)
 
-if (PAR3501 == true) && (parsed3501 == 0):
-    fid3501=fopen(fullfile(datadir,msg3501Filename),'w+');
+if PAR3501 and not parsed3501:
+    fid3501 = open(msg3501Filename,'w')
     fprintf(fid3501,'%s \n', '%=============================================================================');
     fprintf(fid3501,'%s \n',['%NGDCS Check ' Vnum ': Message 3501 Navigation Solution of ' gpsname]);
     fprintf(fid3501,'%s \n', '%* If present "Date" and "Abs Time" are derived and not original Msg3501 data');
