@@ -417,7 +417,7 @@ while line != '':
                     GttW4b = GttW4bP;
                 
                 #clear GttW1bP GttW2bP GttW3bP GttW4bP;
-                Gttb = [GttW1b GttW2b GttW3b GttW4b]
+                Gttb = [GttW1b, GttW2b, GttW3b, GttW4b] #around 370 in real code
                 
                 GttLHSb = Gttb[range(2,21)]
                 GttLHSf = 0
@@ -442,125 +442,206 @@ while line != '':
                 Groll = Groll * (180.0/(2^31))
                 Ghtru = Ghtru * (180.0/(2^31))
 
-                D = [double(Msg3501Count); double(atByte); double(FlgWrd); Gttsec; Glat;...
-                    Glon; Galt; Gvn; Gve; Gvu; Gptch; Groll; Ghtru; double(Gdchk)];
+                D = [double(Msg3501Count), double(atByte), double(FlgWrd), Gttsec, Glat,\
+                    Glon, Galt, Gvn, Gve, Gvu, Gptch, Groll, Ghtru, float(Gdchk)]
 
-                fprintf(fid3501,['%ld, %ld, %d, ' repmat('%f, ',1,10) '%ld \n'],D);
+                fid3501.write(['%ld, %ld, %d, ' + numpy.matlib.repmat('%f, ',1,10) +  '%ld \n'],D)
 
-                clear D Glat Glon Galt Gvn Gve Gvu Gptch Groll Ghtru;
-                clear GttW1b GttW2b GttW3b GttW4b Gttb GttLHSb GttLHSf;
-                clear GttRHSb GttRHSf Gttsec Gdchk;
-                %keyboard
-            end
-        end
+                #clear D Glat Glon Galt Gvn Gve Gvu Gptch Groll Ghtru;
+                #clear GttW1b GttW2b GttW3b GttW4b Gttb GttLHSb GttLHSf;
+                #clear GttRHSb GttRHSf Gttsec Gdchk;
+                #%keyboard
         
         
-        %-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+        #%-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
         
-        if (MssgID == 3502)
-            Msg3502Count = Msg3502Count + 1; %Count the number of Message 3501.
-            Msg3502PartCount = Msg3502PartCount + 1; %Count the number of Message 3501.
-        end
+        if MssgID == 3502:
+            Msg3502Count += 1 #%Count the number of Message 3501.
+            Msg3502PartCount += 1 #%Count the number of Message 3501.
         
-        %-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
-        if ((MssgID == 3512)&&(~TruncEnd))
-            Msg3512Count = Msg3512Count + 1; %Count the number of Message 3512.
-            Msg3512PartCount = Msg3512PartCount + 1; %Count the number of Message 3512.
-            fseek(gfid,atByte+10,'bof');   GPSd2(1:4) = fread(gfid,4, '*uint16','ieee-le');   % GPStime
-            gtW1bP = dec2bin(GPSd2(2));
-            gtW2bP = dec2bin(GPSd2(1));
-            gtW3bP = dec2bin(GPSd2(4));
-            gtW4bP = dec2bin(GPSd2(3));            
+        #%-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+        if (MssgID == 3512) and not TruncEnd:
+            Msg3512Count += 1 #%Count the number of Message 3512.
+            Msg3512PartCount += 1 #%Count the number of Message 3512.
+            gfid.seek(atByte+10, 0)
+            GPSd2[range(1,4)] = fread(gfid,4, *uint16, ieee-le)   #% GPStime
+            gtW1bP = dec2bin(GPSd2(2))
+            gtW2bP = dec2bin(GPSd2(1))
+            gtW3bP = dec2bin(GPSd2(4))
+            gtW4bP = dec2bin(GPSd2(3))            
 
-            if(length(gtW1bP) < 16);
-                n0 = 16-length(gtW1bP);
-                gtW1b = [repmat('0',1,n0) gtW1bP];
-            else
-                gtW1b = gtW1bP;
-            end
+            if len(gtW1bP) < 16:
+                n0 = 16 - len(gtW1bP)
+                gtW1b = [numpy.matlib.repmat('0',1,n0), gtW1bP]
+            else:
+                gtW1b = gtW1bP
             
-            if(length(gtW2bP) < 16);
-                n0 = 16-length(gtW2bP);
-                gtW2b = [repmat('0',1,n0) gtW2bP];
-            else
-                gtW2b = gtW2bP;
-            end
+            if len(gtW2bP) < 16:
+                n0 = 16 - len(gtW2bP)
+                gtW2b = [numpy.matlib.repmat('0',1,n0), gtW2bP]
+            else:
+                gtW2b = gtW2bP
             
-            if(length(gtW3bP) < 16);
-                n0 = 16-length(gtW3bP);
-                gtW3b = [repmat('0',1,n0) gtW3bP];
-            else
-                gtW3b = gtW3bP;
-            end
+            if len(gtW3bP) < 16:
+                n0 = 16 - len(gtW3bP)
+                gtW3b = [numpy.matlib.repmat('0',1,n0), gtW3bP]
+            else:
+                gtW3b = gtW3bP
             
-            if(length(gtW4bP) < 16);
-                n0 = 16-length(gtW4bP);
-                gtW4b = [repmat('0',1,n0) gtW4bP];
-            else
-                gtW4b = gtW4bP;
-            end
+            if len(gtW4bP) < 16:
+                n0 = 16 - len(gtW4bP)
+                gtW4b = [numpy.matlib.repmat('0',1,n0), gtW4bP]
+            else:
+                gtW4b = gtW4bP
             
-            clear gtW1bP gtW2bP gtW3bP gtW4bP;
-            gtb = [gtW1b gtW2b gtW3b gtW4b];
+            #clear gtW1bP gtW2bP gtW3bP gtW4bP;
+            gtb = [gtW1b, gtW2b, gtW3b, gtW4b]
 
-            %if(length(gtb) ~= 64), 'WARNING: GPS Time in binary not 64-bit!', end;
+            #%if(length(gtb) ~= 64), 'WARNING: GPS Time in binary not 64-bit!', end;
 
-            LHSb = gtb(2:21);
+            LHSb = gtb[range(2,21)]
 
-            LHSf = 0;
-            for i = 1:length(LHSb)
-                LHSf = LHSf + bin2dec(LHSb(i))*2^(-i);
-            end
-            LHSf = LHSf*(2^20);
+            LHSf = 0
+            for i in range(1, len(LHSb)):
+                LHSf += bin2dec(LHSb(i))*2^(-i)
+            LHSf += (2^20)
 
-            RHSb = gtb(22:64);
-            RHSf = bin2dec(RHSb)*(2^(20-63));
+            RHSb = gtb(range(22,64))
+            RHSf = bin2dec(RHSb)*(2^(20-63))
 
-            GPSTimSec3512(Msg3512Count) = LHSf+RHSf;
-            clear gtW1b gtW2b gtW3b gtW4b GPSd2 LHSf RHSf;
+            GPSTimSec3512[Msg3512Count] = LHSf + RHSf
+            #clear gtW1b gtW2b gtW3b gtW4b GPSd2 LHSf RHSf;
             
-        end
         
-        %-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
-        if (MssgID == 3623)
-            Msg3623Count = Msg3623Count + 1; %Count the number of Message 3501.
-            Msg3623PartCount = Msg3623PartCount + 1; %Count the number of Message 3501.
-        end
+        #%-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+        if MssgID == 3623:
+            Msg3623Count += 1 #%Count the number of Message 3501.
+            Msg3623PartCount += 1 #%Count the number of Message 3501.
 
-        %-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
-        if (WrdCnt > 0)
-            %if(WrdCnt > 128), '   *** WARNING *** Message Contains more than 128 words', end;
-            atByte = atByte + 10 + int64(WrdCnt*2) +2;        
-        else
-            atByte = atByte + 10;
-        end
+        #%-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+        if WrdCnt > 0:
+            #%if(WrdCnt > 128), '   *** WARNING *** Message Contains more than 128 words', end;
+            atByte = atByte + 10 + int64(WrdCnt*2) +2        
+        else:
+            atByte += 10
         
-        if(~TruncEnd)
-            fprintf(tfid,'%s \n\n',['Byte at end = ' num2str(atByte)]);
-        else
-            fprintf(tfid,'%s \n\n',['*** CAUTION *** Last Message - Truncated']);
-            atByte = sp.bytes;
-        end
+        if not TruncEnd:
+            tfid.write('%s \n\n',['Byte at end = ' + str(atByte)])
+        else:
+            tfid.write('%s \n\n',['*** CAUTION *** Last Message - Truncated'])
+            atByte = sp.nbytes
         
-        fseek(gfid,atByte,'bof'); WordTest = (fread(gfid,1, '*uint16'));
+        gfid.seek(atByte, 0) 
+        WordTest = fread(gfid,1, '*uint16')
     
-        while (WordTest ~= hex2dec('81FF'))
-            GarBytes = GarBytes + 1;
-            fprintf(tfid,'%s \n\n',['*** ERROR *** Excess Msg Input at Byte ' num2str(atByte)]);        
-            atByte = atByte + 1;
-            fseek(gfid,atByte,'bof');  WordTest  = fread(gfid,1, '*uint16');        
-        end
+        while WordTest != hex2dec('81FF'):
+            GarBytes += 1
+            tfid.write('%s \n\n',['*** ERROR *** Excess Msg Input at Byte ' + str(atByte)])        
+            atByte += 1
+            gfid.seek(atByte, 0)  
+            WordTest  = fread(gfid,1, '*uint16')        
         
-    else        
-        GarBytes = GarBytes + 1;
-        fseek(gfid,atByte+1,'bof'); WordTest = (fread(gfid,1, '*uint16'));
+    else: 
+        GarBytes += 1
+        gfid.seek(atByte+1,0) 
+        WordTest = fread(gfid,1, *uint16)
     
-        while (WordTest ~= hex2dec('81FF'))
-            fprintf(tfid,'%s \n\n',['*** ERROR *** False Msg Header at Byte ' num2str(atByte)]);
-            atByte = atByte + 1;
-            fseek(gfid,atByte,'bof');  WordTest  = fread(gfid,1, '*uint16');
-            GarBytes = GarBytes + 1;
-        end
-    end
-        
-end
+        while WordTest != hex2dec('81FF'):
+            tfid.write('%s \n\n',['*** ERROR *** False Msg Header at Byte ' + str(atByte)])
+            atByte += 1
+            gfid.seek(atByte, 0)  
+            WordTest  = fread(gfid,1, *uint16)
+            GarBytes += 1
+            
+            
+tfid.write('%s \n','=======================END======OF======FILE==========================')
+
+MsgPCntrs[1,pidx] = Msg3500PartCount
+MsgPCntrs[2,pidx] = Msg3501PartCount
+MsgPCntrs[3,pidx] = Msg3502PartCount
+MsgPCntrs[4,pidx] = Msg3512PartCount
+MsgPCntrs[5,pidx] = Msg3623PartCount
+
+
+#%keyboard
+'''
+%-------------------------------------------------------------------------------------
+% DETERMINE GPS MODES PRESENT AND HOW MUCH OF FILE IS IN AIR-NAVIGATION
+%-------------------------------------------------------------------------------------
+'''
+ModeTypes  = numpy.unique(Msg3500CurrMode)
+nModes = len(ModeTypes)
+ModeString = cell2mat(GPSModes(ModeTypes)) #I HAVE NO IDEA HOW TO DO THIS
+NavPerCent = 100.0 * len(numpy.nonzero(Msg3500CurrMode==7)) / Msg3500Count        
+
+'''
+%-------------------------------------------------------------------------------------
+% CREATE THE PASS/FAIL FLAGS FOR THE THREE GPS PARAMETERS
+%-------------------------------------------------------------------------------------
+'''
+if GarBytes == 0:
+    GPSMssgPF = 'PASS'
+else:
+    GPSMssgPF = 'FAIL'
+
+if DatCkSmFail == 0:
+    GPSCkSmPF = 'PASS'
+else:
+    GPSCkSmPF = 'FAIL'
+if NavPerCent == 100:
+    GPSArNvPF = 'PASS'
+else:
+    GPSArNvPF = 'FAIL'
+
+'''
+%-------------------------------------------------------------------------------------
+% POPULATE THE MSGCOUNT STRUCTURE WITH THE FINAL COUNTS
+%-------------------------------------------------------------------------------------
+MSGCOUNT = struct('M0003',[Msg3Count],'M3500',[Msg3500Count],'M3501',[Msg3501Count],...
+                  'M3502',[Msg3502Count],'M3512',[Msg3512Count],'M3623',[Msg3623Count]);
+
+%-------------------------------------------------------------------------------------
+% POPULATE THE REPCOUNT STRUCTURE WITH THE FINAL COUNTS
+%-------------------------------------------------------------------------------------
+REPCOUNT = struct('TotalBytes',[atByte],'UnassignedBytes',[GarBytes],'FailedChkSum',[DatCkSmFail],...
+                  'NoGPSModes',[nModes],'GPSModes',[ModeString],'PctNavMode',[NavPerCent]);
+'''
+'''
+%-------------------------------------------------------------------------------------
+% WRITE SUMMARY REPORT
+%-------------------------------------------------------------------------------------
+'''
+ofid.write(['>>> GPS Msg. Integrity : ' + GPSMssgPF + '\n'])
+ofid.write(['>>> GPS Data Integrity : ' + GPSCkSmPF + '\n'])
+ofid.write(['>>> GPS AirNav Mode    : ' + GPSArNvPF + '\n'])
+ofid.write('======================================================================\n')
+ofid.write('SUMMARY\n')
+ofid.write('======================================================================\n')
+ofid.write(['Total Number of Messages 0003: ' + str(Msg3Count) + '\n'])
+ofid.write(['Total Number of Messages 3500: ' + str(Msg3500Count) + '\n'])
+ofid.write(['Total Number of Messages 3501: ' + str(Msg3501Count) + '\n'])
+ofid.write(['Total Number of Messages 3502: ' + str(Msg3502Count) + '\n'])
+ofid.write(['Total Number of Messages 3512: ' + str(Msg3512Count) + '\n'])
+ofid.write(['Total Number of Messages 3623: ' + str(Msg3623Count) + '\n\n'])
+ofid.write(['Bytes in file               : ' + str(atByte) + '\n'])
+ofid.write(['Bytes unassigned to messages: ' + str(GarBytes) + '\n\n'])
+ofid.write(['Failed Data Checksums       : ' + str(DatCkSmFail) + '\n\n'])
+ofid.write(['Number of GPS Modes : ' + str(nModes) + '\n'])
+ofid.write(['GPS Modes           : ' + ModeString + '\n'])
+ofid.write(['Portion in Nav Mode : ' + str(round(NavPerCent)) + '%% \n'])
+ofid.write('======================================================================\n')
+tfid.close()
+ofid.close()
+'''
+%-------------------------------------------------------------------------------------
+% MERGE PARSED-MESSAGE FILE WITH THE SUMMARY-FILE
+%-------------------------------------------------------------------------------------
+'''
+if ispc:
+    system(['type ' + os.path.join(datadir,summfile) + ' ' + os.path.join(datadir,parsfile) + ' > ' + os.path.join(datadir,allfile)])
+if isunix:
+    system(['cat ' + os.path.join(datadir,summfile) + ' ' + os.path.join(datadir,parsfile) + ' > ' + os.path.join(datadir,allfile)])
+
+
+os.remove(os.path.join(datadir,summfile))
+os.remove(os.path.join(datadir,parsfile))
