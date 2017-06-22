@@ -61,6 +61,15 @@
 %[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]
 '''
 import os.path # Import os.path to search file paths
+import math
+import numpy as np 
+
+def dec2hex(n):
+    """return the hexadecimal string representation of integer n"""
+    return "%X" % n
+def hex2dec(s):
+    """return the integer value of a hexadecimal string s"""
+    return int(s, 16)
 
 def GPS_Parser_V10func(filename, datadir, GPSFigs, PAR3501):
     # MSGCOUNT = struct('M0003',[],'M3500',[],'M3501',[],'M3502',[],'M3512',[],'M3623',[])
@@ -98,11 +107,31 @@ def GPS_Parser_V10func(filename, datadir, GPSFigs, PAR3501):
 
     if PAR3501 and not parsed3501:
         fid3501 = open(msg3501Filename,'w')
-        fid3501.write('%s \n', '%=============================================================================');
+        fid3501.write('%s \n' % '%=============================================================================');
         # TODO Brackets were around (GPS_Parser_V10func.m, line 101)
-        fid3501.write('%s \n', '%NGDCS Check ' + Vnum + ': Message 3501 Navigation Solution of ' + gpsname);
-        fid3501.write('%s \n', '%* If present "Date" and "Abs Time" are derived and not original Msg3501 data');
-        fid3501.write('%s \n', '%=============================================================================');
-        fid3501.write('%s \n', 'Msg3501#, StartByte, Flag, Time, Lat, Lon, Alt, VelN, VelE, VelUp, Pitch, Roll, HeadTrue, DataCheckSum');
+        fid3501.write('%s \n' %'%NGDCS Check ' + Vnum + ': Message 3501 Navigation Solution of ' + gpsname);
+        fid3501.write('%s \n'% '%* If present "Date" and "Abs Time" are derived and not original Msg3501 data');
+        fid3501.write('%s \n'% '%=============================================================================');
+        fid3501.write('%s \n'%'Msg3501#, StartByte, Flag, Time, Lat, Lon, Alt, VelN, VelE, VelUp, Pitch, Roll, HeadTrue, DataCheckSum');
+    '''
+    %-------------------------------------------------------------------------------------
+    % READ C-MIGITS III DATA AND FIND MESSAGE ID3 FOR EACH PULSE. BUT FIRST,
+    % SEEK THE FIRST hx81FF CODE FOR THE FIRST COMPLETE MESSAGE.
+    %-------------------------------------------------------------------------------------
+    '''
+
+    allfile  = filename + '-parsed.txt'
+    summfile = filename + '-summtemp.txt'
+    parsfile = filename + '-parsetemp.txt'
+
+    ofid = open(os.path.join(datadir, summfile), 'w')
+    tfid = open(os.path.join(datadir, parsfile), 'w')
+    sp_bytes = np.int64(os.path.getsize(os.path.join(datadir,gpsname)))
+    nwrd = np.int64(math.ceil(sp_bytes / 2.0))
+    nams = np.int64(nwrd/5.0)
+
+    print("sp: ", sp_bytes)
+    print("nwrd: ", nwrd)
+    print("nams: ", nams)
 
     return [MSGCOUNT, REPCOUNT, GPSTimSec]
