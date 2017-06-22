@@ -1,0 +1,5 @@
+%============================================================================= 
+%NGDCS Check V10: Message 3501 Navigation Solution of GPS_Parser_V10.m 
+%* If present "Date" and "Abs Time" are derived and not original Msg3501 data 
+%============================================================================= 
+%Msg3501#, StartByte, Flag, Time, Lat, Lon, Alt, VelN, VelE, VelUp, Pitch, Roll, HeadTrue, DataCheckSum 
