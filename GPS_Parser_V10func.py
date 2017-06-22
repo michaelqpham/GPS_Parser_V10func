@@ -63,22 +63,14 @@
 import os.path # Import os.path to search file paths
 
 def GPS_Parser_V10func(filename, datadir, GPSFigs, PAR3501):
-    '''
-    %=====================================================================================
-    % U S E R    P A R A M E T E R S
-    %=====================================================================================
-    '''
-    Vnum = 'V10'
-    PssblMsg = [3, 3500, 3501, 3502, 3512, 3623]
-    GPSModes = ['(1) Test ','(2) Initialization ','(3) *not used* ',
-                '(4) Fine Alignment ','(5) Air Alignment ','(6) Transfer Alignment ',
-                '(7) Air Navigation ','(8) *not used* ','(9) GPS Only ']
     # MSGCOUNT = struct('M0003',[],'M3500',[],'M3501',[],'M3502',[],'M3512',[],'M3623',[])
     # REPCOUNT = struct('TotalBytes',[],'UnassignedBytes',[],'FailedChkSum',[],
     #                   'NoGPSModes',[],'GPSModes',[],'PctNavMode',[])
     MSGCOUNT = {'M0003':[], 'M3500':[], 'M3501':[], 'M3502':[], 'M3512':[], 'M3623':[]}
     REPCOUNT = {'TotalBytes': [], 'UnassignedBytes':[], 'FailedChkSum':[], 'NoGPSModes':[], 
         'GPSModes':[], 'FailedChkSum':[]}
+    GPSTimSec = 0
+
     '''
     %=====================================================================================
 
