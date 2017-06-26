@@ -17,9 +17,28 @@ nams: 141318
 
 All calculations are done in numpy to ensure that all variables are 64-bit integers. (array([[33279]], dtype=uint16))
 
-
+Line 176 
+----------------------------------
 fread reads data from a binary file. 
 WordTest will be an array of 33279 16-bit unsigned ints ()
+
+Line 174
+----------------------------------
+fseek moves to specified position in file
+
+Line 206
+----------------------------------
+for expcthsm, we want the last 4 characters of the hex, so 
+for the first run, 
+hdrsumhex = "FFFEFDB1", and expcthsm= 64946 because
+length(hdrsumhex) = 8 and we convert 'FDB1' to dec
+
+Line 236
+----------------------------------
+Matlab binary converts directly to the digits represented in binary
+for example, the number 1347477 converts to the chars '101001000111110010101'. Python converts the same number to the string '0b101001000111110010101'. A substring is taken to get rid of the '0b' at the
+beginning. 
+Note: Matlab indexes starting from 1 while python starts the index from 0.
 
 DEBUGGING
 ----------------------------------
@@ -41,3 +60,6 @@ $ c
 
 -step: execute the current line, stop at the first possible occasion (either in a function that is called or on the next line in the current function).
 $ s
+
+- quit pdb. note, to run updated file, you must quit pdb first and then rerun on the updated file. 
+$ q

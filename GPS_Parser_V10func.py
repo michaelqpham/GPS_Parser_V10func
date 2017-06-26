@@ -172,7 +172,90 @@ def GPS_Parser_V10func(filename, datadir, GPSFigs, PAR3501):
     pidx = 1
     DatCkSmFail = 0    
     gfid.seek(0, 0) # start at beginning of file
+
     WordTest = fread(gfid, 1, np.uint16) # read the file into 16-bit unsigned ints
-    
-    
+
+    while WordTest != hex2dec('81FF'): 
+        atByte += 1
+        gfid.seek(atByte,0)
+        WordTest  = fread(gfid,1, np.uint16)
+
+    GarBytes = np.int64(0)
+    count = np.int64(0)
+    for line in gfid: # while not eof
+        if atByte > count+100000:
+            count = atByte
+            # add in a waitbar
+        tfid.write('%s \n','------------------------------')
+        tfid.write('%s \n'% ['Byte at start = ' + str(atByte)])
+        # absolute positioning
+        gfid.seek(atByte+0, 0)
+        SynWrd = fread(gfid, 1, np.uint16)
+        gfid.seek(atByte+2, 0)
+        MssgID = fread(gfid, 1, np.uint16)              # Message 3 ID
+        gfid.seek(atByte+4, 0)
+        WrdCnt = fread(gfid, 1, np.uint16)              # Word Count
+        gfid.seek(atByte+6, 0)
+        FlgWrd = fread(gfid, 1, np.uint16)              # Flag Word
+        gfid.seek(atByte+8, 0)
+        HdrCkSm = fread(gfid, 1, np.uint16)             # Header Check Sum
+
+        # get the bitwise complement
+        hdrsumhex = dec2hex(~(np.uint32(SynWrd) + np.uint32(MssgID) + np.uint32(WrdCnt) + np.uint32(FlgWrd)))
+
+        if (len(hdrsumhex) > 4):
+            expcthsm = hex2dec(hdrsumhex[(len(hdrsumhex)-4):len(hdrsumhex)])+1
+        else:
+            expcthsm = hex2dec(hdrsumhex)+1
+
+        if (float(HdrCkSm)-expcthsm) == 0:
+            MsgCount += 1
+            tfid.write('%s\n'% ['Message Count = ' + str(MsgCount) + ' >> Message Type: ' + str(MssgID) + ' >>> Data Word Count: ' + str(WrdCnt)])
+        # TEST FOR A TRUNCATED MESSAGE WHILE IN HEADER OR DATA THEN. IF IT IS, THEN IT WILL
+        # NOT PARSE THE MESSAGE DATA.
+        # -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+        if (atByte + 12 >= sp_bytes):
+            TruncEnd = 1
+        else:
+            TruncEnd = ((atByte + 10 + np.int64(WrdCnt)*2 + 2) > sp_bytes)
+        #  RUN DATA CHECKSUM FOR EVERY IDENTIFIED MESSAGE IF THERE IS
+        #  CONTENT IN MESSAGE
+        # -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+        if (WrdCnt != 0) and !TruncEnd:
+            DataByte = atByte + 10
+            MsgData = np.zeros(1, WrdCnt)
+
+            # include np.int64(WrdCnt)
+            for iw in range(1, np.int64(WrdCnt)+1):
+                gfid.seek(DataByte+2*(iw-1), 0)
+                MsgData[iw] = fread(gfid, 1, np.uint16)
+            gfid.seek(DataByte+2*iw, 0)
+            DataChckSum = fread(gfid, 1, np.uint16)
+            DataChckSum = float(DataChckSum)
+            # convert the decimal to binary and cut out the '0b' at the front
+            datsumbin = bin(float(sum(MsgData)))[2:]
+
+            if len(datsumbin) > 16:
+                # python's indexing starts at 0 as opposed to matlab's start at 1
+                # convert binary to decimal with int(n, 2)
+                if ((int((datsumbin[len(datsumbin)-16:len(datsumbin)]), 2)) != 0):
+                    expctdsm = (int((datsumbin[len(datsumbin)-16:len(datsumbin)]), 2))
+                else:
+                    expctdsm = (int((datsumbin[len(datsumbin)-16:len(datsumbin)]), 2)) + (2**16)
+            else:
+                expctdsm = int(datsumbin, 2)
+                if datsumbin != 0:
+                    expctdsm += 1
+            if (float(DataChckSum) + expctdsm)== 2**16:
+                tfid.write('%s\n' % '\tData CheckSum OK')
+            else:
+                DatCkSmFail += 1
+                tfid.write('%s\n' % ' *** ERROR *** Data CheckSum FAILS!')
+
+            # clear the variables. Not strictly needed in python (?)
+            del DataByte, MsgData, iw, datsumbin, expctdsm
+
+        # IDENTIFY MESSAGE AND APPROPRIATELY ADD TO ACCOUNTING
+        #-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+
     return [MSGCOUNT, REPCOUNT, GPSTimSec]
