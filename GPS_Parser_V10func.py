@@ -105,7 +105,7 @@ def GPS_Parser_V10func(filename, datadir, GPSFigs, PAR3501):
     %-------------------------------------------------------------------------------------
     '''
     gpsname = filename
-    gfid = open(gpsname, 'r')
+    gfid = open(gpsname, 'rb')
 
     '''
     %-------------------------------------------------------------------------------------
@@ -116,7 +116,7 @@ def GPS_Parser_V10func(filename, datadir, GPSFigs, PAR3501):
     parsed3501 = os.path.exists(msg3501Filename)
 
     if PAR3501 and not parsed3501:
-        fid3501 = open(msg3501Filename,'w')
+        fid3501 = open(msg3501Filename,'wb')
         fid3501.write('%s \n' % ('%============================================================================='))
         # TODO Brackets were around (GPS_Parser_V10func.m, line 101)
         fid3501.write('%s \n' % ('%NGDCS Check ' + Vnum + ': Message 3501 Navigation Solution of ' + gpsname))
@@ -134,8 +134,8 @@ def GPS_Parser_V10func(filename, datadir, GPSFigs, PAR3501):
     summfile = filename + '-summtemp.txt'
     parsfile = filename + '-parsetemp.txt'
 
-    ofid = open(os.path.join(datadir, summfile), 'w')
-    tfid = open(os.path.join(datadir, parsfile), 'w')
+    ofid = open(os.path.join(datadir, summfile), 'wb')
+    tfid = open(os.path.join(datadir, parsfile), 'wb')
     sp_bytes = np.int64(os.path.getsize(os.path.join(datadir,gpsname)))
     nwrd = np.int64(math.ceil(sp_bytes / 2.0))
     nams = np.int64(nwrd/5.0)
