@@ -68,9 +68,13 @@ import struct
 def binary(num):
     return ''.join(bin(c).replace('0b', '').rjust(8, '0') for c in struct.pack('!f', num))
 
-def dec2hex(n):
+def dec2hex(arr):
     """return the hexadecimal string representation of integer n"""
-    return "%X" % n
+    h = []
+    for n in arr:
+        h.append("%X" % n)
+    return h
+
 def hex2dec(s):
     """return the integer value of a hexadecimal string s"""
     return int(s, 16)
