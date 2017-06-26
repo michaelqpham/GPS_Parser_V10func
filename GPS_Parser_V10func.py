@@ -150,10 +150,10 @@ def GPS_Parser_V10func(filename, datadir, GPSFigs, PAR3501):
 
     Estampa = 'GPS_Parser_' + Vnum +' on ' + str(dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     # print(Estampa)
-    ofid.write('%s \n' % '======================================================================')
-    ofid.write('%s \n\n'%  ['   ' + Estampa])
-    ofid.write('%s \n' % '   GPS File: ' + gpsname)
-    ofid.write('%s \n' % '======================================================================')
+    ofid.write('%s \n' % ('======================================================================'))
+    ofid.write('%s \n\n' % ('   ' + Estampa))
+    ofid.write('%s \n' % ('   GPS File: ' + gpsname))
+    ofid.write('%s \n' % ('======================================================================'))
 
     atByte = np.int64(0)
     MsgCount = np.int64(0)
