@@ -117,12 +117,12 @@ def GPS_Parser_V10func(filename, datadir, GPSFigs, PAR3501):
 
     if PAR3501 and not parsed3501:
         fid3501 = open(msg3501Filename,'w')
-        fid3501.write('%s \n' % '%=============================================================================');
+        fid3501.write('%s \n' % ('%============================================================================='))
         # TODO Brackets were around (GPS_Parser_V10func.m, line 101)
-        fid3501.write('%s \n' %'%NGDCS Check ' + Vnum + ': Message 3501 Navigation Solution of ' + gpsname);
-        fid3501.write('%s \n'% '%* If present "Date" and "Abs Time" are derived and not original Msg3501 data');
-        fid3501.write('%s \n'% '%=============================================================================');
-        fid3501.write('%s \n'%'Msg3501#, StartByte, Flag, Time, Lat, Lon, Alt, VelN, VelE, VelUp, Pitch, Roll, HeadTrue, DataCheckSum');
+        fid3501.write('%s \n' % ('%NGDCS Check ' + Vnum + ': Message 3501 Navigation Solution of ' + gpsname))
+        fid3501.write('%s \n' % ('%* If present "Date" and "Abs Time" are derived and not original Msg3501 data'))
+        fid3501.write('%s \n' % ('%============================================================================='))
+        fid3501.write('%s \n' % ('%Msg3501#, StartByte, Flag, Time, Lat, Lon, Alt, VelN, VelE, VelUp, Pitch, Roll, HeadTrue, DataCheckSum'))
     '''
     %-------------------------------------------------------------------------------------
     % READ C-MIGITS III DATA AND FIND MESSAGE ID3 FOR EACH PULSE. BUT FIRST,
