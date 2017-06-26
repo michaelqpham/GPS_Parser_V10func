@@ -64,6 +64,9 @@ import os.path # Import os.path to search file paths
 import math
 import datetime as dt 
 import numpy as np 
+import struct
+def binary(num):
+    return ''.join(bin(c).replace('0b', '').rjust(8, '0') for c in struct.pack('!f', num))
 
 def dec2hex(n):
     """return the hexadecimal string representation of integer n"""
@@ -72,16 +75,33 @@ def hex2dec(s):
     """return the integer value of a hexadecimal string s"""
     return int(s, 16)
 
-'''read data from binary file'''
+'''read data from binary file
+fid = fileID, nelements = sizeA, dtype=precision, 
+'''
+
 def fread(fid, nelements, dtype):
     if dtype is np.str:
-     dt = np.uint8  # WARNING: assuming 8-bit ASCII for np.str!
+        dt = np.uint8  # WARNING: assuming 8-bit ASCII for np.str!
     else:
-     dt = dtype
+        dt = dtype
 
     data_array = np.fromfile(fid, dt, nelements)
     data_array.shape = (nelements, 1)
+    return data_array
 
+
+def fread1(fid, nelements, dtype, machinefmt):
+    dtype.byteorder = machinefmt
+
+    '''
+    Order for reading bytes in the file: 
+    'ieee-le' = little-endian ordering
+    -----
+    Specify byte order ">" is little-endian
+    machinefmt = "little"
+    '''
+    data_array = np.fromfile(fid, dtype, nelements)
+    data_array.shape = (nelements, 1)
     return data_array
 
 def GPS_Parser_V10func(filename, datadir, GPSFigs, PAR3501):
@@ -186,19 +206,19 @@ def GPS_Parser_V10func(filename, datadir, GPSFigs, PAR3501):
         if atByte > count+100000:
             count = atByte
             # add in a waitbar
-        tfid.write('%s \n','------------------------------')
-        tfid.write('%s \n'% ['Byte at start = ' + str(atByte)])
+        tfid.write('%s \n'% '------------------------------')
+        tfid.write('%s \n'% ('Byte at start = ' + str(atByte)))
         # absolute positioning
         gfid.seek(atByte+0, 0)
-        SynWrd = fread(gfid, 1, np.uint16)
+        SynWrd = fread(gfid, 1, np.uint16)[0]
         gfid.seek(atByte+2, 0)
-        MssgID = fread(gfid, 1, np.uint16)              # Message 3 ID
+        MssgID = fread(gfid, 1, np.uint16)[0]              # Message 3 ID
         gfid.seek(atByte+4, 0)
-        WrdCnt = fread(gfid, 1, np.uint16)              # Word Count
+        WrdCnt = fread(gfid, 1, np.uint16)[0]              # Word Count
         gfid.seek(atByte+6, 0)
-        FlgWrd = fread(gfid, 1, np.uint16)              # Flag Word
+        FlgWrd = fread(gfid, 1, np.uint16)[0]              # Flag Word
         gfid.seek(atByte+8, 0)
-        HdrCkSm = fread(gfid, 1, np.uint16)             # Header Check Sum
+        HdrCkSm = fread(gfid, 1, np.uint16)[0]             # Header Check Sum
 
         # get the bitwise complement
         hdrsumhex = dec2hex(~(np.uint32(SynWrd) + np.uint32(MssgID) + np.uint32(WrdCnt) + np.uint32(FlgWrd)))
@@ -221,19 +241,19 @@ def GPS_Parser_V10func(filename, datadir, GPSFigs, PAR3501):
         #  RUN DATA CHECKSUM FOR EVERY IDENTIFIED MESSAGE IF THERE IS
         #  CONTENT IN MESSAGE
         # -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
-        if (WrdCnt != 0) and !TruncEnd:
+        if (WrdCnt != 0) and not TruncEnd:
             DataByte = atByte + 10
-            MsgData = np.zeros(1, WrdCnt)
+            MsgData = np.zeros((1, WrdCnt[0]+1))
 
             # include np.int64(WrdCnt)
             for iw in range(1, np.int64(WrdCnt)+1):
                 gfid.seek(DataByte+2*(iw-1), 0)
-                MsgData[iw] = fread(gfid, 1, np.uint16)
+                MsgData[0][iw] = fread(gfid, 1, np.uint16)[0]
             gfid.seek(DataByte+2*iw, 0)
-            DataChckSum = fread(gfid, 1, np.uint16)
+            DataChckSum = fread(gfid, 1, np.uint16)[0]
             DataChckSum = float(DataChckSum)
             # convert the decimal to binary and cut out the '0b' at the front
-            datsumbin = bin(float(sum(MsgData)))[2:]
+            datsumbin = str(binary(float(np.sum(MsgData))))
 
             if len(datsumbin) > 16:
                 # python's indexing starts at 0 as opposed to matlab's start at 1
@@ -257,5 +277,19 @@ def GPS_Parser_V10func(filename, datadir, GPSFigs, PAR3501):
 
         # IDENTIFY MESSAGE AND APPROPRIATELY ADD TO ACCOUNTING
         #-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+        if MssgID == 3:
+            Msg3Count += 1
+            tfid.write('%s\n' %('Mssg 3 Count: ' + str(Msg3Count)))
+            gfid.seek(atByte + 10, 0)
+            # GPStime
+            # TODO: Figure out how to specify byteorder
+            # python's native byteorder (search with $ sys.byteorder) 
+            # is "little" (little-endian)
+
+            GPSd1[:4] = fread(fread, 1, np.dtype('uint16') )[0]
+            gtW1bP = bin(GPSd1[1])
+            gtW2bP = bin(GPSd1[0])
+            gtW3bP = bin(GPSd1[3])
+            gtW4bP = bin(GPSd1[2])
 
     return [MSGCOUNT, REPCOUNT, GPSTimSec]

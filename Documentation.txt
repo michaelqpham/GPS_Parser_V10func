@@ -40,6 +40,18 @@ for example, the number 1347477 converts to the chars '101001000111110010101'. P
 beginning. 
 Note: Matlab indexes starting from 1 while python starts the index from 0.
 
+Line 90, 281
+----------------------------------
+numpy.dtype.byteorder specifies byte-order of the data-type object
+with a character:
+‘=’	native
+‘<’	little-endian
+‘>’	big-endian
+‘|’	not applicable
+----> here, I will specify either "little" or 'big'
+right now, python is by default 'little'
+to look into -> how to set the default
+
 DEBUGGING
 ----------------------------------
 pdb is a python debugger: 
