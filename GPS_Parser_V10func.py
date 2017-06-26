@@ -62,6 +62,7 @@
 '''
 import os.path # Import os.path to search file paths
 import math
+import datetime as dt 
 import numpy as np 
 
 def dec2hex(n):
@@ -71,14 +72,23 @@ def hex2dec(s):
     """return the integer value of a hexadecimal string s"""
     return int(s, 16)
 
+'''read data from binary file'''
+def fread(fid, nelements, dtype):
+    if dtype is np.str:
+     dt = np.uint8  # WARNING: assuming 8-bit ASCII for np.str!
+    else:
+     dt = dtype
+
+    data_array = np.fromfile(fid, dt, nelements)
+    data_array.shape = (nelements, 1)
+
+    return data_array
+
 def GPS_Parser_V10func(filename, datadir, GPSFigs, PAR3501):
-    # MSGCOUNT = struct('M0003',[],'M3500',[],'M3501',[],'M3502',[],'M3512',[],'M3623',[])
-    # REPCOUNT = struct('TotalBytes',[],'UnassignedBytes',[],'FailedChkSum',[],
-    #                   'NoGPSModes',[],'GPSModes',[],'PctNavMode',[])
+    Vnum = 'V10'
     MSGCOUNT = {'M0003':[], 'M3500':[], 'M3501':[], 'M3502':[], 'M3512':[], 'M3623':[]}
     REPCOUNT = {'TotalBytes': [], 'UnassignedBytes':[], 'FailedChkSum':[], 'NoGPSModes':[], 
         'GPSModes':[], 'FailedChkSum':[]}
-    GPSTimSec = 0
 
     '''
     %=====================================================================================
@@ -130,8 +140,39 @@ def GPS_Parser_V10func(filename, datadir, GPSFigs, PAR3501):
     nwrd = np.int64(math.ceil(sp_bytes / 2.0))
     nams = np.int64(nwrd/5.0)
 
-    print("sp: ", sp_bytes)
-    print("nwrd: ", nwrd)
-    print("nams: ", nams)
+    # print("sp: ", sp_bytes)
+    # print("nwrd: ", nwrd)
+    # print("nams: ", nams)
 
+    GPSTimSec = np.zeros(nams)
+    GPSTimSec = np.zeros(nams)
+    MSGPCntrs = np.zeros(5, nams)
+
+    Estampa = 'GPS_Parser_' + Vnum +' on ' + str(dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    # print(Estampa)
+    ofid.write('%s \n' % '======================================================================')
+    ofid.write('%s \n\n'%  ['   ' + Estampa])
+    ofid.write('%s \n' % '   GPS File: ' + gpsname)
+    ofid.write('%s \n' % '======================================================================')
+
+    atByte = np.int64(0)
+    MsgCount = np.int64(0)
+    Msg3Count = np.int64(0)
+    Msg3500Count = np.int64(0)
+    Msg3501Count = np.int64(0)
+    Msg3502Count = np.int64(0)
+    Msg3512Count = np.int64(0)
+    Msg3623Count = np.int64(0)
+    Msg3500PartCount = np.int64(0)
+    Msg3501PartCount = np.int64(0)
+    Msg3502PartCount = np.int64(0)
+    Msg3512PartCount = np.int64(0)
+    Msg3623PartCount = np.int64(0)
+    Msg3500CurrMode  = np.int64(0)
+    pidx = 1
+    DatCkSmFail = 0    
+    gfid.seek(0, 0) # start at beginning of file
+    WordTest = fread(gfid, 1, np.uint16) # read the file into 16-bit unsigned ints
+    
+    
     return [MSGCOUNT, REPCOUNT, GPSTimSec]

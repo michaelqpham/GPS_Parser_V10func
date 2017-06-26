@@ -1,0 +1,43 @@
+Line 139
+----------------------------------
+sp: the only section required of sp, which in the matlab is a struct with the fields: 
+  struct with fields:
+
+       name: 'ang20170616t200614_gps'
+     folder: 'C:\Users\siwan\Documents\MATLAB'
+       date: '22-Jun-2017 08:25:41'
+      bytes: 1413179
+      isdir: 0
+    datenum: 7.3687e+05
+is the bytes, so we retrieved the bytes. 
+
+sp: 1413179
+nwrd: 7.0659e+05
+nams: 141318
+
+All calculations are done in numpy to ensure that all variables are 64-bit integers. (array([[33279]], dtype=uint16))
+
+
+fread reads data from a binary file. 
+WordTest will be an array of 33279 16-bit unsigned ints ()
+
+DEBUGGING
+----------------------------------
+pdb is a python debugger: 
+Run the following in terminal to open the debugger
+$ python -m pdb GPS_Parser_V10.py
+
+- setting up breakpoints
+$ b [default: current file]:line_number
+ex: 
+$ b GPS_Parser_V10func:145
+$ b 175
+
+- run
+$ r
+
+- continue
+$ c
+
+-step: execute the current line, stop at the first possible occasion (either in a function that is called or on the next line in the current function).
+$ s
