@@ -64,6 +64,7 @@ import os.path # Import os.path to search file paths
 import numpy
 import datetime
 import numpy.matlib
+import matplotlib.pyplot as plt
 
 def GPS_Parser_V10func(filename, datadir, GPSFigs, PAR3501):
     return [MSGCOUNT, REPCOUNT, GPSTimSec]
@@ -645,3 +646,29 @@ if isunix:
 
 os.remove(os.path.join(datadir,summfile))
 os.remove(os.path.join(datadir,parsfile))
+'''
+%-------------------------------------------------------------------------------------
+% CREATE FIGURES IF SO DESIRED
+%-------------------------------------------------------------------------------------
+'''
+if GPSFigs:
+    figname = filename + '-parsed-fig'
+    
+    #%-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+    
+    fig1 = plt.figure('Position',[10, 50, 600, 900],'PaperUnits','inches','PaperPosition',\
+         [0.5,0.5,7,10])
+    plt.subplot(2, 1, 1)
+    plt.plot(MsgPCntrs[1,range(1, pidx)], '-bo', 'MarkerFaceColor', 'b', 'MarkerSize',3)
+    plt.xlabel('MSG ID 3 Count', 'FontSize', 12, 'FontWeight', 'demi')
+    plt.ylabel('Number of Msg. 3500 per Msg. 3', 'FontSize', 12, 'FontWeight', 'demi')
+    plt.title(filename, 'Interpreter', 'none', 'FontSize', 14, 'FontWeight', 'demi')
+    plt.set(gca, 'PlotBoxAspectRatio', [1.5, 1, 1], 'TickLength', [.02, .02],\
+            'XMinorTick', 'on', 'YMinorTick', 'on', 'YDir', 'normal')
+    plt.subplot(2,1,2)
+    plt.plot(MsgPCntrs[2,range(1, pidx)], '-ro', 'MarkerFaceColor', 'r', 'MarkerSize',3)
+    plt.xlabel('MSG ID 3 Count', 'FontSize', 12, 'FontWeight', 'demi')
+    plt.ylabel('Number of Msg. 3501 per Msg. 3', 'FontSize', 12, 'FontWeight', 'demi')
+    plt.title(filename, 'Interpreter', 'none', 'FontSize', 14, 'FontWeight', 'demi')
+    plt.set(gca, 'PlotBoxAspectRatio', [1.5, 1, 1], 'TickLength', [.02, .02],\
+            'XMinorTick', 'on', 'YMinorTick', 'on', 'YDir', 'normal')
